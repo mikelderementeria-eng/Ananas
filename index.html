@@ -321,14 +321,50 @@ body.pina-mode #sStreak{animation:auraFloat 1.5s ease-in-out infinite}
 
 <!-- TABS -->
 <div class="tabs">
-  <button class="tbtn on" onclick="tab('boxing',this)">⚡ Calistenia 1 — Boxeo</button>
+  <button class="tbtn on" onclick="tab('elong',this)">🌀 Elongaciones Dinámicas</button>
+  <button class="tbtn" onclick="tab('boxing',this)">⚡ Calistenia 1 — Boxeo</button>
   <button class="tbtn" onclick="tab('plio',this)">◈ Calistenia 2 — Plio</button>
-  <button class="tbtn" onclick="tab('elong',this)">🌀 Elongaciones Dinámicas</button>
+  <button class="tbtn" onclick="tab('post',this)">🧘 Estiramiento Post-Entreno</button>
   <button class="tbtn" onclick="tab('hist',this)">◉ Historial</button>
 </div>
 
+<!-- ELONGACIONES DINÁMICAS TAB -->
+<div id="tc-elong" class="tc on">
+  <div class="plio-day">
+    <button class="pd-btn on" id="pdCA" onclick="setElong('comeAlive')">🌀 COME ALIVE</button>
+    <button class="pd-btn" id="pdSF" onclick="setElong('shaolin')">☯ SHAOLIN FLOW</button>
+  </div>
+  
+  <!-- Descripción -->
+  <div class="desc-box" style="border:1px solid var(--border);background:var(--gd);border-radius:3px;padding:12px 14px;margin-bottom:14px;">
+    <div class="ttl" style="font-size:11px;color:var(--gold);text-shadow:var(--gg);letter-spacing:.06em;margin-bottom:4px;" id="elongTitle">COME ALIVE — Chequeo de sistemas</div>
+    <div class="txt" style="font-size:11px;color:var(--t2);line-height:1.5;" id="elongDesc">Repetir cada ejercicio <b>10 veces por lado</b>. Movimientos controlados, círculos y balanceos. Despierta hombros, caderas y tobillos.</div>
+  </div>
+
+  <!-- Timer -->
+  <div class="ptimer" style="border:1px solid rgba(232,184,0,.25);background:var(--gd);border-radius:3px;padding:14px 16px;margin-bottom:12px;">
+    <div class="pt-header">
+      <div class="pt-time gn" id="elongTime">0:30</div>
+      <div class="pt-info">
+        <div class="pt-phase w" id="elongPhase">TRABAJO</div>
+        <div class="pt-ex" id="elongEx">Rotación de hombros</div>
+        <div class="pt-prog" id="elongProg">Ejercicio 1 / 6</div>
+        <div class="pt-bar"><div class="pt-fill gf" id="elongFill" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="pt-ctrl">
+      <button class="btn-s" onclick="elongReset()">↺ Reset</button>
+      <button class="btn-c" id="btnElong" onclick="elongToggle()">▶ INICIAR</button>
+    </div>
+  </div>
+
+  <!-- Lista de ejercicios -->
+  <div class="sec-lbl">Ejercicios</div>
+  <div id="elongList"></div>
+</div>
+
 <!-- BOXING TAB -->
-<div id="tc-boxing" class="tc on">
+<div id="tc-boxing" class="tc">
   <div class="base">
     <div class="base-ttl">Base obligatoria — todos los rounds</div>
     <div class="base-items">
@@ -413,39 +449,38 @@ body.pina-mode #sStreak{animation:auraFloat 1.5s ease-in-out infinite}
   <div id="plioList"></div>
 </div>
 
-<!-- ELONGACIONES DINÁMICAS TAB -->
-<div id="tc-elong" class="tc">
+<!-- ESTIRAMIENTO POST-ENTRENO TAB -->
+<div id="tc-post" class="tc">
   <div class="plio-day">
-    <button class="pd-btn on" id="pdCA" onclick="setElong('comeAlive')">🌀 COME ALIVE</button>
-    <button class="pd-btn" id="pdSF" onclick="setElong('shaolin')">☯ SHAOLIN FLOW</button>
+    <button class="pd-btn on" id="pdPE" onclick="setElong('postEntreno')">🧘 POST-ENTRENO</button>
   </div>
 
   <!-- Descripción -->
   <div class="desc-box" style="border:1px solid var(--border);background:var(--gd);border-radius:3px;padding:12px 14px;margin-bottom:14px;">
-    <div class="ttl" style="font-size:11px;color:var(--gold);text-shadow:var(--gg);letter-spacing:.06em;margin-bottom:4px;" id="elongTitle">COME ALIVE — Chequeo de sistemas</div>
-    <div class="txt" style="font-size:11px;color:var(--t2);line-height:1.5;" id="elongDesc">Repetir cada ejercicio <b>10 veces por lado</b>. Movimientos controlados, círculos y balanceos. Despierta hombros, caderas y tobillos.</div>
+    <div class="ttl" style="font-size:11px;color:var(--gold);text-shadow:var(--gg);letter-spacing:.06em;margin-bottom:4px;" id="postTitle">ESTIRAMIENTO POST-ENTRENO — 8 MIN · Flexibilidad para Boxeo</div>
+    <div class="txt" style="font-size:11px;color:var(--t2);line-height:1.5;" id="postDesc">Rutina de estiramientos estáticos para después de entrenar boxeo. Ayuda a relajar la musculatura, mejorar la recuperación y prevenir lesiones.</div>
   </div>
 
   <!-- Timer -->
   <div class="ptimer" style="border:1px solid rgba(232,184,0,.25);background:var(--gd);border-radius:3px;padding:14px 16px;margin-bottom:12px;">
     <div class="pt-header">
-      <div class="pt-time gn" id="elongTime">0:30</div>
+      <div class="pt-time gn" id="postTime">0:30</div>
       <div class="pt-info">
-        <div class="pt-phase w" id="elongPhase">TRABAJO</div>
-        <div class="pt-ex" id="elongEx">Rotación de hombros</div>
-        <div class="pt-prog" id="elongProg">Ejercicio 1 / 6</div>
-        <div class="pt-bar"><div class="pt-fill gf" id="elongFill" style="width:100%"></div></div>
+        <div class="pt-phase w" id="postPhase">TRABAJO</div>
+        <div class="pt-ex" id="postEx">Estiramiento de hombros</div>
+        <div class="pt-prog" id="postProg">Ejercicio 1 / 8</div>
+        <div class="pt-bar"><div class="pt-fill gf" id="postFill" style="width:100%"></div></div>
       </div>
     </div>
     <div class="pt-ctrl">
-      <button class="btn-s" onclick="elongReset()">↺ Reset</button>
-      <button class="btn-c" id="btnElong" onclick="elongToggle()">▶ INICIAR</button>
+      <button class="btn-s" onclick="postReset()">↺ Reset</button>
+      <button class="btn-c" id="btnPost" onclick="postToggle()">▶ INICIAR</button>
     </div>
   </div>
 
   <!-- Lista de ejercicios -->
   <div class="sec-lbl">Ejercicios</div>
-  <div id="elongList"></div>
+  <div id="postList"></div>
 </div>
 
 <!-- HISTORY TAB -->
@@ -979,7 +1014,7 @@ function spawnSparks(){
 }
 
 // ═══════════════════════════════════════
-// ELONGACIONES DINÁMICAS
+// ELONGACIONES DINÁMICAS & POST-ENTRENO
 // ═══════════════════════════════════════
 const ELONG_DATA = {
   comeAlive: {
@@ -1009,21 +1044,42 @@ const ELONG_DATA = {
       { name: 'Rotaciones de cadera', detail: 'Dobles y simples', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
       { name: 'Balanceos de pierna', detail: 'Movilidad de cadera y piernas', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
     ]
+  },
+  postEntreno: {
+    title: 'ESTIRAMIENTO POST-ENTRENO — 8 MIN · Flexibilidad para Boxeo',
+    desc: 'Rutina de estiramientos estáticos para después de entrenar boxeo. Ayuda a relajar la musculatura, mejorar la recuperación y prevenir lesiones.',
+    work: 30,
+    rest: 10,
+    exercises: [
+      { name: 'Estiramiento de hombros (cruzado)', detail: '30s · Brazo cruzado sobre el pecho', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de tríceps', detail: '30s · Brazo detrás de la cabeza, codo hacia arriba', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de pecho', detail: '30s · Mano en pared, girar el torso', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de cuádriceps', detail: '30s · De pie, talón al glúteo', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de isquiotibiales', detail: '30s · Pierna estirada, flexión hacia adelante', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de glúteos (Figura-4)', detail: '30s · Tumbado, tobillo sobre rodilla contraria', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de flexores de cadera', detail: '30s · Zancada baja, cadera hacia adelante', link: 'https://youtu.be/5RgiY6XoKeY' },
+      { name: 'Estiramiento de gemelos', detail: '30s · Pierna atrasada, talón en el suelo', link: 'https://youtu.be/5RgiY6XoKeY' },
+    ]
   }
 };
 
 let elongRutina = 'comeAlive';
 let elongRun = false, elongInt = null;
-let elongIdx = 0;            // ejercicio actual
-let elongWork = true;        // true = trabajo, false = descanso
-let elongLeft = 30;          // segundos restantes
+let elongIdx = 0;
+let elongWork = true;
+let elongLeft = 30;
 let elongTotalEx = 0;
 
 function setElong(rutina) {
-  if (elongRun) elongToggle(); // para stop si está corriendo
+  if (elongRun) elongToggle();
   elongRutina = rutina;
-  document.getElementById('pdCA').classList.toggle('on', rutina === 'comeAlive');
-  document.getElementById('pdSF').classList.toggle('on', rutina === 'shaolin');
+  
+  // Actualizar botones de rutina
+  document.querySelectorAll('.pd-btn').forEach(b => b.classList.remove('on'));
+  if (rutina === 'comeAlive') document.getElementById('pdCA')?.classList.add('on');
+  if (rutina === 'shaolin') document.getElementById('pdSF')?.classList.add('on');
+  if (rutina === 'postEntreno') document.getElementById('pdPE')?.classList.add('on');
+  
   elongReset();
   renderElongList();
 }
@@ -1036,7 +1092,11 @@ function elongStart() {
   const data = ELONG_DATA[elongRutina];
   if (!data) return;
   elongRun = true;
-  document.getElementById('btnElong').textContent = '⏸ PAUSA';
+  
+  // Determinar qué botón actualizar según la pestaña activa
+  const btnId = elongRutina === 'postEntreno' ? 'btnPost' : 'btnElong';
+  document.getElementById(btnId).textContent = '⏸ PAUSA';
+  
   elongInt = setInterval(elongTick, 1000);
   elongDisplay();
 }
@@ -1044,7 +1104,9 @@ function elongStart() {
 function elongStop() {
   elongRun = false;
   clearInterval(elongInt);
-  document.getElementById('btnElong').textContent = '▶ INICIAR';
+  
+  const btnId = elongRutina === 'postEntreno' ? 'btnPost' : 'btnElong';
+  document.getElementById(btnId).textContent = '▶ INICIAR';
 }
 
 function elongReset() {
@@ -1064,10 +1126,8 @@ function elongTick() {
   if (elongLeft < 0) {
     const data = ELONG_DATA[elongRutina];
     if (elongWork) {
-      // termina trabajo → descanso
       sndRest();
       if (elongIdx >= data.exercises.length - 1) {
-        // último ejercicio, terminar
         elongStop();
         elongLeft = 0;
         elongDisplay();
@@ -1077,7 +1137,6 @@ function elongTick() {
       elongWork = false;
       elongLeft = data.rest;
     } else {
-      // termina descanso → siguiente ejercicio
       sndWork();
       elongIdx++;
       elongWork = true;
@@ -1095,13 +1154,21 @@ function elongDisplay() {
 
   const m = Math.floor(elongLeft / 60);
   const s = elongLeft % 60;
-  document.getElementById('elongTime').textContent = m + ':' + (s < 10 ? '0' + s : s);
+  
+  // Determinar qué elementos actualizar según la rutina
+  const timeId = elongRutina === 'postEntreno' ? 'postTime' : 'elongTime';
+  const phaseId = elongRutina === 'postEntreno' ? 'postPhase' : 'elongPhase';
+  const exId = elongRutina === 'postEntreno' ? 'postEx' : 'elongEx';
+  const progId = elongRutina === 'postEntreno' ? 'postProg' : 'elongProg';
+  const fillId = elongRutina === 'postEntreno' ? 'postFill' : 'elongFill';
+  
+  document.getElementById(timeId).textContent = m + ':' + (s < 10 ? '0' + s : s);
 
-  const phaseEl = document.getElementById('elongPhase');
-  const timeEl = document.getElementById('elongTime');
-  const fillEl = document.getElementById('elongFill');
-  const exEl = document.getElementById('elongEx');
-  const progEl = document.getElementById('elongProg');
+  const phaseEl = document.getElementById(phaseId);
+  const timeEl = document.getElementById(timeId);
+  const fillEl = document.getElementById(fillId);
+  const exEl = document.getElementById(exId);
+  const progEl = document.getElementById(progId);
 
   if (elongWork) {
     phaseEl.textContent = 'TRABAJO';
@@ -1123,31 +1190,46 @@ function elongDisplay() {
 
 function renderElongList() {
   const data = ELONG_DATA[elongRutina];
-  const container = document.getElementById('elongList');
+  const containerId = elongRutina === 'postEntreno' ? 'postList' : 'elongList';
+  const container = document.getElementById(containerId);
   if (!data) return;
+  
   // Actualizar título y descripción
-  document.getElementById('elongTitle').textContent = data.title;
-  document.getElementById('elongDesc').innerHTML = data.desc;
+  const titleId = elongRutina === 'postEntreno' ? 'postTitle' : 'elongTitle';
+  const descId = elongRutina === 'postEntreno' ? 'postDesc' : 'elongDesc';
+  document.getElementById(titleId).textContent = data.title;
+  document.getElementById(descId).innerHTML = data.desc;
 
   let html = '';
   data.exercises.forEach((ex, i) => {
     const isActive = (i === elongIdx && elongRun);
     html += `
       <div class="ex" style="${isActive ? 'border-color:var(--gold);' : ''}">
-        <div class="ex-hdr" onclick="toggleEx('elongEx${i}')">
+        <div class="ex-hdr" onclick="toggleEx('${elongRutina === 'postEntreno' ? 'postEx' : 'elongEx'}${i}')">
           <div>
             <div class="ex-name">${i+1}. ${ex.name} ${isActive ? '◀' : ''}</div>
             <div class="ex-det">${ex.detail}</div>
           </div>
-          <span class="earr" id="elongEx${i}a">›</span>
+          <span class="earr" id="${elongRutina === 'postEntreno' ? 'postEx' : 'elongEx'}${i}a">›</span>
         </div>
-        <div class="ex-body" id="elongEx${i}b">
+        <div class="ex-body" id="${elongRutina === 'postEntreno' ? 'postEx' : 'elongEx'}${i}b">
           ${ex.link ? `<a class="lnk" href="${ex.link}" target="_blank" rel="noopener">▶ Video de referencia</a>` : ''}
         </div>
       </div>
     `;
   });
   container.innerHTML = html;
+}
+
+// Funciones wrapper para post-entreno
+function postToggle() {
+  if (elongRutina !== 'postEntreno') setElong('postEntreno');
+  elongToggle();
+}
+
+function postReset() {
+  if (elongRutina !== 'postEntreno') setElong('postEntreno');
+  elongReset();
 }
 
 // ── INIT ──
