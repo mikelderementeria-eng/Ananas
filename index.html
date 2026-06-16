@@ -323,6 +323,7 @@ body.pina-mode #sStreak{animation:auraFloat 1.5s ease-in-out infinite}
 <div class="tabs">
   <button class="tbtn on" onclick="tab('boxing',this)">⚡ Calistenia 1 — Boxeo</button>
   <button class="tbtn" onclick="tab('plio',this)">◈ Calistenia 2 — Plio</button>
+  <button class="tbtn" onclick="tab('elong',this)">🌀 Elongaciones Dinámicas</button>
   <button class="tbtn" onclick="tab('hist',this)">◉ Historial</button>
 </div>
 
@@ -410,6 +411,41 @@ body.pina-mode #sStreak{animation:auraFloat 1.5s ease-in-out infinite}
   </div>
 
   <div id="plioList"></div>
+</div>
+
+<!-- ELONGACIONES DINÁMICAS TAB -->
+<div id="tc-elong" class="tc">
+  <div class="plio-day">
+    <button class="pd-btn on" id="pdCA" onclick="setElong('comeAlive')">🌀 COME ALIVE</button>
+    <button class="pd-btn" id="pdSF" onclick="setElong('shaolin')">☯ SHAOLIN FLOW</button>
+  </div>
+
+  <!-- Descripción -->
+  <div class="desc-box" style="border:1px solid var(--border);background:var(--gd);border-radius:3px;padding:12px 14px;margin-bottom:14px;">
+    <div class="ttl" style="font-size:11px;color:var(--gold);text-shadow:var(--gg);letter-spacing:.06em;margin-bottom:4px;" id="elongTitle">COME ALIVE — Chequeo de sistemas</div>
+    <div class="txt" style="font-size:11px;color:var(--t2);line-height:1.5;" id="elongDesc">Repetir cada ejercicio <b>10 veces por lado</b>. Movimientos controlados, círculos y balanceos. Despierta hombros, caderas y tobillos.</div>
+  </div>
+
+  <!-- Timer -->
+  <div class="ptimer" style="border:1px solid rgba(232,184,0,.25);background:var(--gd);border-radius:3px;padding:14px 16px;margin-bottom:12px;">
+    <div class="pt-header">
+      <div class="pt-time gn" id="elongTime">0:30</div>
+      <div class="pt-info">
+        <div class="pt-phase w" id="elongPhase">TRABAJO</div>
+        <div class="pt-ex" id="elongEx">Rotación de hombros</div>
+        <div class="pt-prog" id="elongProg">Ejercicio 1 / 6</div>
+        <div class="pt-bar"><div class="pt-fill gf" id="elongFill" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="pt-ctrl">
+      <button class="btn-s" onclick="elongReset()">↺ Reset</button>
+      <button class="btn-c" id="btnElong" onclick="elongToggle()">▶ INICIAR</button>
+    </div>
+  </div>
+
+  <!-- Lista de ejercicios -->
+  <div class="sec-lbl">Ejercicios</div>
+  <div id="elongList"></div>
 </div>
 
 <!-- HISTORY TAB -->
@@ -942,10 +978,183 @@ function spawnSparks(){
   }
 }
 
+// ═══════════════════════════════════════
+// ELONGACIONES DINÁMICAS
+// ═══════════════════════════════════════
+const ELONG_DATA = {
+  comeAlive: {
+    title: 'COME ALIVE — Chequeo de sistemas',
+    desc: 'Repetir cada ejercicio <b>10 veces por lado</b>. Movimientos controlados, círculos y balanceos. Despierta hombros, caderas y tobillos.',
+    work: 30,
+    rest: 15,
+    exercises: [
+      { name: 'Rotaciones de hombros', detail: '10 repeticiones por lado · círculos controlados', link: 'https://youtube.com/shorts/Q35Yl-pyCNY' },
+      { name: 'Círculos de brazos', detail: '10 repeticiones por lado · barridos, apertura de pecho', link: 'https://youtube.com/shorts/Q35Yl-pyCNY' },
+      { name: 'Círculos de cadera', detail: '10 repeticiones por lado · lubricar la articulación', link: 'https://youtube.com/shorts/Q35Yl-pyCNY' },
+      { name: 'Círculos de tobillo', detail: '10 repeticiones por lado · movilidad', link: 'https://youtube.com/shorts/Q35Yl-pyCNY' },
+      { name: 'Balanceos de pierna (adelante)', detail: '10 repeticiones por lado · control', link: 'https://youtube.com/shorts/Q35Yl-pyCNY' },
+      { name: 'Balanceos laterales', detail: '10 repeticiones por lado · estabilidad', link: 'https://youtube.com/shorts/Q35Yl-pyCNY' },
+    ]
+  },
+  shaolin: {
+    title: 'SHAOLIN MORNING FLOW — Movimiento fluido',
+    desc: 'Flujo continuo y relajado. Cicla a través de los movimientos sin parar. Busca la sensación "sin huesos".',
+    work: 20,
+    rest: 10,
+    exercises: [
+      { name: 'Saltos (hops)', detail: 'Activación suave del sistema', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
+      { name: 'Círculos de brazos', detail: 'Movilidad de hombros', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
+      { name: 'Expansiones de pecho', detail: 'Abrir la parte frontal', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
+      { name: 'Giros', detail: 'Rotación de columna', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
+      { name: 'Rotaciones de cadera', detail: 'Dobles y simples', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
+      { name: 'Balanceos de pierna', detail: 'Movilidad de cadera y piernas', link: 'https://youtube.com/shorts/ewuwZrqpTGk' },
+    ]
+  }
+};
+
+let elongRutina = 'comeAlive';
+let elongRun = false, elongInt = null;
+let elongIdx = 0;            // ejercicio actual
+let elongWork = true;        // true = trabajo, false = descanso
+let elongLeft = 30;          // segundos restantes
+let elongTotalEx = 0;
+
+function setElong(rutina) {
+  if (elongRun) elongToggle(); // para stop si está corriendo
+  elongRutina = rutina;
+  document.getElementById('pdCA').classList.toggle('on', rutina === 'comeAlive');
+  document.getElementById('pdSF').classList.toggle('on', rutina === 'shaolin');
+  elongReset();
+  renderElongList();
+}
+
+function elongToggle() {
+  elongRun ? elongStop() : elongStart();
+}
+
+function elongStart() {
+  const data = ELONG_DATA[elongRutina];
+  if (!data) return;
+  elongRun = true;
+  document.getElementById('btnElong').textContent = '⏸ PAUSA';
+  elongInt = setInterval(elongTick, 1000);
+  elongDisplay();
+}
+
+function elongStop() {
+  elongRun = false;
+  clearInterval(elongInt);
+  document.getElementById('btnElong').textContent = '▶ INICIAR';
+}
+
+function elongReset() {
+  elongStop();
+  const data = ELONG_DATA[elongRutina];
+  elongIdx = 0;
+  elongWork = true;
+  elongLeft = data ? data.work : 30;
+  elongTotalEx = data ? data.exercises.length : 0;
+  elongDisplay();
+  renderElongList();
+}
+
+function elongTick() {
+  if (elongLeft <= 3 && elongLeft > 0 && elongWork) sndWarn();
+  elongLeft--;
+  if (elongLeft < 0) {
+    const data = ELONG_DATA[elongRutina];
+    if (elongWork) {
+      // termina trabajo → descanso
+      sndRest();
+      if (elongIdx >= data.exercises.length - 1) {
+        // último ejercicio, terminar
+        elongStop();
+        elongLeft = 0;
+        elongDisplay();
+        sndDone();
+        return;
+      }
+      elongWork = false;
+      elongLeft = data.rest;
+    } else {
+      // termina descanso → siguiente ejercicio
+      sndWork();
+      elongIdx++;
+      elongWork = true;
+      elongLeft = data.work;
+    }
+  }
+  elongDisplay();
+}
+
+function elongDisplay() {
+  const data = ELONG_DATA[elongRutina];
+  if (!data) return;
+  const ex = data.exercises[elongIdx] || data.exercises[0];
+  const total = data.exercises.length;
+
+  const m = Math.floor(elongLeft / 60);
+  const s = elongLeft % 60;
+  document.getElementById('elongTime').textContent = m + ':' + (s < 10 ? '0' + s : s);
+
+  const phaseEl = document.getElementById('elongPhase');
+  const timeEl = document.getElementById('elongTime');
+  const fillEl = document.getElementById('elongFill');
+  const exEl = document.getElementById('elongEx');
+  const progEl = document.getElementById('elongProg');
+
+  if (elongWork) {
+    phaseEl.textContent = 'TRABAJO';
+    phaseEl.className = 'pt-phase w';
+    timeEl.className = 'pt-time gn' + (elongLeft <= 5 ? ' wn' : '');
+    fillEl.className = 'pt-fill gf';
+    fillEl.style.width = Math.round(elongLeft / data.work * 100) + '%';
+  } else {
+    phaseEl.textContent = 'DESCANSO';
+    phaseEl.className = 'pt-phase r';
+    timeEl.className = 'pt-time';
+    fillEl.className = 'pt-fill';
+    fillEl.style.width = Math.round(elongLeft / data.rest * 100) + '%';
+  }
+
+  exEl.textContent = ex.name;
+  progEl.textContent = 'Ejercicio ' + (elongIdx + 1) + ' / ' + total;
+}
+
+function renderElongList() {
+  const data = ELONG_DATA[elongRutina];
+  const container = document.getElementById('elongList');
+  if (!data) return;
+  // Actualizar título y descripción
+  document.getElementById('elongTitle').textContent = data.title;
+  document.getElementById('elongDesc').innerHTML = data.desc;
+
+  let html = '';
+  data.exercises.forEach((ex, i) => {
+    const isActive = (i === elongIdx && elongRun);
+    html += `
+      <div class="ex" style="${isActive ? 'border-color:var(--gold);' : ''}">
+        <div class="ex-hdr" onclick="toggleEx('elongEx${i}')">
+          <div>
+            <div class="ex-name">${i+1}. ${ex.name} ${isActive ? '◀' : ''}</div>
+            <div class="ex-det">${ex.detail}</div>
+          </div>
+          <span class="earr" id="elongEx${i}a">›</span>
+        </div>
+        <div class="ex-body" id="elongEx${i}b">
+          ${ex.link ? `<a class="lnk" href="${ex.link}" target="_blank" rel="noopener">▶ Video de referencia</a>` : ''}
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
 // ── INIT ──
 renderAll();
 bDisplay();
 pDisplay();
+setElong('comeAlive');
 document.getElementById('pTimerBox').style.display='block';
 document.getElementById('devBox').style.display='none';
 </script>
