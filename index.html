@@ -325,6 +325,7 @@ body.pina-mode #sStreak{animation:auraFloat 1.5s ease-in-out infinite}
   <button class="tbtn" onclick="tab('boxing',this)">⚡ Calistenia 1 — Boxeo</button>
   <button class="tbtn" onclick="tab('plio',this)">◈ Calistenia 2 — Plio</button>
   <button class="tbtn" onclick="tab('post',this)">🧘 Estiramiento Post-Entreno</button>
+  <button class="tbtn" id="tabEspecial" onclick="tab('especial',this)" style="display:none;">⭐ Rutina Especial</button>
   <button class="tbtn" onclick="tab('hist',this)">◉ Historial</button>
 </div>
 
@@ -481,6 +482,54 @@ body.pina-mode #sStreak{animation:auraFloat 1.5s ease-in-out infinite}
   <!-- Lista de ejercicios -->
   <div class="sec-lbl">Ejercicios</div>
   <div id="postList"></div>
+</div>
+
+<!-- ─── RUTINA ESPECIAL (desbloqueable) ─── -->
+<div id="tc-especial" class="tc">
+  <!-- Mensaje de bloqueo (se muestra si nivel < 2) -->
+  <div id="especialLock" style="display:none; text-align:center; padding:30px 20px; border:1px solid var(--gold-d); border-radius:3px; background:var(--bg2);">
+    <div style="font-size:48px; margin-bottom:10px;">🔒</div>
+    <div style="font-family:var(--fd); font-size:14px; letter-spacing:.1em; color:var(--gold); text-shadow:var(--gs);">RUTINA ESPECIAL BLOQUEADA</div>
+    <div style="font-size:12px; color:var(--t3); margin:12px 0; line-height:1.6;">
+      Aumenta tu nivel de <b style="color:var(--gold);">Piña</b> para desbloquear esta rutina exclusiva.<br>
+      Necesitas <b style="color:var(--gold-l);">2 estrellas Piña</b> (4 sesiones completadas).
+    </div>
+    <div style="font-family:var(--fd); font-size:10px; color:var(--t3); letter-spacing:.1em; border-top:1px solid var(--border); padding-top:12px; margin-top:12px;">
+      NIVEL ACTUAL: <span id="lockCurrentLevel" style="color:var(--gold);">0</span> / 2 ⭐
+    </div>
+  </div>
+
+  <!-- Contenido de la rutina (se muestra si nivel >= 2) -->
+  <div id="especialContent" style="display:none;">
+    <div class="desc-box" style="border:1px solid var(--gold);background:var(--gd);border-radius:3px;padding:12px 14px;margin-bottom:14px;">
+      <div class="ttl" style="font-size:11px;color:var(--gold);text-shadow:var(--gg);letter-spacing:.06em;margin-bottom:4px;">⭐ RUTINA ESPECIAL — DOMINANDO EL PASO DE PÉNDULO</div>
+      <div class="txt" style="font-size:11px;color:var(--t2);line-height:1.5;">
+        Basado en la técnica soviética. Practica el movimiento de pies, la guardia y la integración con golpes. 
+        <b>4 rounds de 2 min · 30s descanso</b>.
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="ptimer" style="border:1px solid rgba(232,184,0,.4);background:var(--gd);border-radius:3px;padding:14px 16px;margin-bottom:12px;">
+      <div class="pt-header">
+        <div class="pt-time gn" id="espTime">2:00</div>
+        <div class="pt-info">
+          <div class="pt-phase w" id="espPhase">TRABAJO</div>
+          <div class="pt-ex" id="espEx">Movimiento de pies</div>
+          <div class="pt-prog" id="espProg">Round 1 / 4</div>
+          <div class="pt-bar"><div class="pt-fill gf" id="espFill" style="width:100%"></div></div>
+        </div>
+      </div>
+      <div class="pt-ctrl">
+        <button class="btn-s" onclick="espReset()">↺ Reset</button>
+        <button class="btn-c" id="btnEsp" onclick="espToggle()">▶ INICIAR</button>
+      </div>
+    </div>
+
+    <!-- Lista de ejercicios -->
+    <div class="sec-lbl">Rounds de práctica</div>
+    <div id="espList"></div>
+  </div>
 </div>
 
 <!-- HISTORY TAB -->
@@ -942,7 +991,7 @@ function renderHist(){
   document.getElementById('histGrid').innerHTML=html;
   document.getElementById('histTxt').textContent=`◈  ${cnt} sesiones completadas en las últimas 4 semanas`;
 }
-function renderAll(){renderStats();renderWeek();renderRounds();renderPlioList();renderHist()}
+function renderAll(){renderStats();renderWeek();renderRounds();renderPlioList();renderHist();renderEspecial()}
 
 // TABS
 function tab(name,btn){
@@ -950,6 +999,30 @@ function tab(name,btn){
   document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('tc-'+name).classList.add('on');
+}
+
+// ═══════════════════════════════════════
+// RUTINA ESPECIAL — VISIBILIDAD
+// ═══════════════════════════════════════
+function renderEspecial(){
+  const nivel = calcPinaLevel(S.total || 0);
+  const tabBtn = document.getElementById('tabEspecial');
+  const lockDiv = document.getElementById('especialLock');
+  const contentDiv = document.getElementById('especialContent');
+
+  if (nivel >= 2) {
+    // Desbloqueado: mostrar pestaña y contenido
+    tabBtn.style.display = 'inline-block';
+    lockDiv.style.display = 'none';
+    contentDiv.style.display = 'block';
+    document.getElementById('lockCurrentLevel').textContent = nivel;
+  } else {
+    // Bloqueado: ocultar pestaña, mostrar mensaje de bloqueo
+    tabBtn.style.display = 'none';
+    lockDiv.style.display = 'block';
+    contentDiv.style.display = 'none';
+    document.getElementById('lockCurrentLevel').textContent = nivel;
+  }
 }
 
 // ═══════════════════════════════════════
@@ -997,6 +1070,22 @@ function triggerPinaUp(lvl){
       document.querySelectorAll('.tr').forEach(r=>r.style.animation='');
     },800);
   },4500);
+  
+  // Rutina Especial desbloqueada en nivel 2
+  if (lvl === 2) {
+    setTimeout(() => {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;background:var(--bg);border:2px solid var(--gold);border-radius:8px;padding:24px 32px;text-align:center;box-shadow:0 0 60px rgba(232,184,0,0.6);font-family:var(--fd);';
+      msg.innerHTML = `
+        <div style="font-size:48px;">⭐</div>
+        <div style="font-size:18px;color:var(--gold);margin:8px 0;">¡RUTINA ESPECIAL DESBLOQUEADA!</div>
+        <div style="font-size:12px;color:var(--t2);">"Dominando el Paso de Péndulo" ya está disponible en la pestaña ⭐</div>
+        <button onclick="this.parentElement.remove()" style="margin-top:12px;padding:6px 20px;border:1px solid var(--gold);background:var(--gold);color:#000;font-family:var(--fm);border-radius:2px;cursor:pointer;">¡VAMOS!</button>
+      `;
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 8000);
+    }, 3000);
+  }
 }
 function spawnSparks(){
   const cont=document.getElementById('tcSparks');
@@ -1230,6 +1319,135 @@ function postToggle() {
 function postReset() {
   if (elongRutina !== 'postEntreno') setElong('postEntreno');
   elongReset();
+}
+
+// ═══════════════════════════════════════
+// RUTINA ESPECIAL — PASO DE PÉNDULO
+// ═══════════════════════════════════════
+const ESP_DATA = {
+  title: 'DOMINANDO EL PASO DE PÉNDULO',
+  desc: 'Basado en la técnica soviética. Practica el movimiento de pies, la guardia y la integración con golpes. 4 rounds de 2 min · 30s descanso.',
+  work: 120,   // 2 minutos
+  rest: 30,    // 30 segundos
+  rounds: [
+    { name: 'Movimiento de pies', detail: 'Solo el paso de péndulo, sin brazos. Concéntrate en el ritmo y el balance.' },
+    { name: 'Movimiento + guardia', detail: 'Añade la guardia alta. Mantén los codos pegados y el mentón abajo.' },
+    { name: 'Movimiento + jabs', detail: 'Introduce jabs suaves. Coordina el golpe con el movimiento de pies.' },
+    { name: 'Integración total', detail: 'Movimiento, defensa y golpes. Fluye con control y suavidad.' },
+  ]
+};
+
+let espRun = false, espInt = null;
+let espRound = 0;
+let espWork = true;
+let espLeft = ESP_DATA.work;
+let espTotalRounds = ESP_DATA.rounds.length;
+
+function espToggle() {
+  espRun ? espStop() : espStart();
+}
+
+function espStart() {
+  espRun = true;
+  document.getElementById('btnEsp').textContent = '⏸ PAUSA';
+  espInt = setInterval(espTick, 1000);
+  espDisplay();
+}
+
+function espStop() {
+  espRun = false;
+  clearInterval(espInt);
+  document.getElementById('btnEsp').textContent = '▶ INICIAR';
+}
+
+function espReset() {
+  espStop();
+  espRound = 0;
+  espWork = true;
+  espLeft = ESP_DATA.work;
+  espDisplay();
+  renderEspList();
+}
+
+function espTick() {
+  if (espLeft <= 3 && espLeft > 0 && espWork) sndWarn();
+  espLeft--;
+  if (espLeft < 0) {
+    if (espWork) {
+      sndRest();
+      if (espRound >= ESP_DATA.rounds.length - 1) {
+        espStop();
+        espLeft = 0;
+        espDisplay();
+        sndDone();
+        return;
+      }
+      espWork = false;
+      espLeft = ESP_DATA.rest;
+    } else {
+      sndWork();
+      espRound++;
+      espWork = true;
+      espLeft = ESP_DATA.work;
+    }
+  }
+  espDisplay();
+}
+
+function espDisplay() {
+  const data = ESP_DATA;
+  const round = data.rounds[espRound] || data.rounds[0];
+
+  const m = Math.floor(espLeft / 60);
+  const s = espLeft % 60;
+  document.getElementById('espTime').textContent = m + ':' + (s < 10 ? '0' + s : s);
+
+  const phaseEl = document.getElementById('espPhase');
+  const timeEl = document.getElementById('espTime');
+  const fillEl = document.getElementById('espFill');
+  const exEl = document.getElementById('espEx');
+  const progEl = document.getElementById('espProg');
+
+  if (espWork) {
+    phaseEl.textContent = 'TRABAJO';
+    phaseEl.className = 'pt-phase w';
+    timeEl.className = 'pt-time gn' + (espLeft <= 5 ? ' wn' : '');
+    fillEl.className = 'pt-fill gf';
+    fillEl.style.width = Math.round(espLeft / data.work * 100) + '%';
+  } else {
+    phaseEl.textContent = 'DESCANSO';
+    phaseEl.className = 'pt-phase r';
+    timeEl.className = 'pt-time';
+    fillEl.className = 'pt-fill';
+    fillEl.style.width = Math.round(espLeft / data.rest * 100) + '%';
+  }
+
+  exEl.textContent = round.name;
+  progEl.textContent = 'Round ' + (espRound + 1) + ' / ' + data.rounds.length;
+}
+
+function renderEspList() {
+  const container = document.getElementById('espList');
+  if (!container) return;
+  let html = '';
+  ESP_DATA.rounds.forEach((r, i) => {
+    const isActive = (i === espRound && espRun);
+    html += `
+      <div class="ex" style="${isActive ? 'border-color:var(--gold);' : ''}">
+        <div class="ex-hdr" onclick="toggleEx('espEx${i}')">
+          <div>
+            <div class="ex-name">${i+1}. ${r.name} ${isActive ? '◀' : ''}</div>
+            <div class="ex-det">${r.detail}</div>
+          </div>
+          <span class="earr" id="espEx${i}a">›</span>
+        </div>
+        <div class="ex-body" id="espEx${i}b">
+          <a class="lnk" href="https://youtu.be/giP23bluUXg?list=PLCx-UM4eVD0LOZGwSESq6J_bSj0HbLz7C" target="_blank" rel="noopener">▶ Ver técnica original</a>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
 }
 
 // ── INIT ──
