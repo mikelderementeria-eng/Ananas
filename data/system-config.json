@@ -1,0 +1,31 @@
+{
+  "version": "valparaiso-v1",
+  "systemName": "EL PIÑA TRAINING SYSTEM",
+  "coach": "EL PROFE",
+  "theme": {
+    "primary": "#E8B800",
+    "primaryLight": "#FFD84D",
+    "primaryDark": "#9A7A00",
+    "secondary": "#2DAA6B",
+    "background": "#0A0800",
+    "text": "#F5F0DC"
+  },
+  "pinaThresholds": [2, 4, 7, 10, 14],
+  "pinaNames": [
+    "¡PRIMERA PIÑA!",
+    "¡PIÑA DOBLE!",
+    "¡PIÑA POWER!",
+    "¡SUPER PIÑA!",
+    "¡PIÑA SUPREMA! 菠萝"
+  ],
+  "workDuration": 180,
+  "restDuration": 60,
+  "calendarDays": 5,
+  "features": {
+    "boxingTimer": true,
+    "plioTimer": true,
+    "devTimer": true,
+    "historyTracking": true,
+    "pinaLevelSystem": true
+  }
+}

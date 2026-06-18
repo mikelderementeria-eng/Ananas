@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "diaA": {
+    "calent": {
+      "rounds": 8,
+      "workSec": 30,
+      "restSec": 20,
+      "exs": ["Skipping", "Plancha alta"]
+    },
+    "dev": {
+      "rounds": 12,
+      "workSec": 40,
+      "restSec": 30,
+      "exs": ["Pushups", "Burpees", "Mountain climbers"],
+      "links": ["https://youtube.com/shorts/example1", "https://youtube.com/shorts/example2"]
+    },
+    "finish": {
+      "rounds": 10,
+      "workSec": 30,
+      "restSec": 45,
+      "exs": ["Pushups hand release", "Air squats"],
+      "links": ["https://youtube.com/shorts/dFI0VWMqxIk", "https://youtube.com/shorts/eUy9DpornNI"]
+    }
+  },
+  "diaB": {
+    "calent": {
+      "rounds": 8,
+      "workSec": 30,
+      "restSec": 20,
+      "exs": ["Skipping", "Plancha alta"]
+    },
+    "dev": {
+      "rounds": 12,
+      "workSec": 40,
+      "restSec": 30,
+      "exs": ["Jump squats", "Lunges", "Plank jacks"],
+      "links": ["", ""]
+    },
+    "finish": {
+      "rounds": 10,
+      "workSec": 35,
+      "restSec": 45,
+      "exs": ["Russian twist", "Sombra de boxeo suave"],
+      "links": ["https://youtube.com/shorts/-cPtvFdT8dc", ""]
+    }
+  }
+}
