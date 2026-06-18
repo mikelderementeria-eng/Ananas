@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "rounds": [
+    {"id": 0, "title": "Jab - Cross", "duration": 180},
+    {"id": 1, "title": "Hook - Uppercut", "duration": 180},
+    {"id": 2, "title": "Defensa - Bloqueos", "duration": 180},
+    {"id": 3, "title": "Combinaciones", "duration": 180},
+    {"id": 4, "title": "Footwork", "duration": 180},
+    {"id": 5, "title": "Sombra intensa", "duration": 180},
+    {"id": 6, "title": "Core - Abdominales", "duration": 180}
+  ],
+  "baseExercises": [
+    "Jumping jacks",
+    "High knees",
+    "Arm circles",
+    "Torso twists",
+    "Leg swings"
+  ]
+}
