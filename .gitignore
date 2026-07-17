@@ -1,1 +1,1 @@
-(empty)
+Nothing needs to be added to .gitignore since the changes only include HTML files (index_old.html, ElPina_Casa.html, index.html) which are source files and not build artifacts, dependencies, or temporary files.
